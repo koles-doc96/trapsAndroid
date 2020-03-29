@@ -3,31 +3,86 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="#D4D1C4"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".gui.MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:backgroundTint="#5FA511"
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
+            app:title="Ловушки"
+            app:titleTextColor="@color/qr_code_white"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
+            android:backgroundTint="#5FA511"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <include layout="@layout/content_main" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_traps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="56dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:listitem="@layout/item_layout_trap" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
+        android:id="@+id/bt_find_trap"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
+        android:backgroundTint="#5FA511"
+        android:tint="@color/qr_code_white"
+        app:rippleColor="#5FA511"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_dialog_email" />
+        app:srcCompat="@drawable/ic_find_monitor" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/bt_add_trap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:rippleColor="#5FA511"
+        app:backgroundTint="#5FA511"
+        android:layout_margin="@dimen/fab_margin"
+        android:tint="@color/qr_code_white"
+        app:srcCompat="@drawable/ic_add_trap" />
+
+    <ru.github.igla.ferriswheel.FerrisWheelView
+        android:id="@+id/ferrisWheelView"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        app:fwv_wheelStrokeColor  = "@color/qr_code_white"
+        app:fwv_baseStrokeColor  = "@color/qr_code_white"
+        app:fwv_cabinFillColor  = "@color/qr_code_white"
+        app:fwv_cabinLineStrokeColor  = "@color/qr_code_white"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        app:fwv_cabinsNumber="8"
+        app:fwv_rotateSpeed="6" />
+
+        <TextView
+            android:id="@+id/title_load"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/roboto_medium"
+            android:textSize="24sp"
+            android:gravity="center"
+            android:layout_marginBottom="24dp"
+            android:layout_gravity="bottom|center"
+            android:textColor="@color/qr_code_white"
+            android:text="Синхронизация данных" />
+
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

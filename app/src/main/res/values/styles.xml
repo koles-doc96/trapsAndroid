@@ -17,4 +17,8 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="MySwitchStyle" parent = "Theme.AppCompat.Light">
+        <item name="thumbTint">@color/switch_thumb</item>
+        <item name="trackTint">@color/background_switch</item>
+    </style>
 </resources>
