@@ -8,12 +8,12 @@ public class Trap {
     private String id;
     private String barCode;
     private String dateInspection;
-    private boolean traceBittes;
-    private boolean adhesivePlateReplacement;
-    private int numberPests;
-    private boolean isTrapDamage;
-    private boolean isTrapReplacement;
-    private boolean isTrapReplacementDo;
+    private boolean traceBittes = false;
+    private boolean adhesivePlateReplacement = false;
+    private int numberPests = 0;
+    private boolean isTrapDamage = false;
+    private boolean isTrapReplacement = false;
+    private boolean isTrapReplacementDo = false;
     private String photo;
     private Bitmap picture;
 

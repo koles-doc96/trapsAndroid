@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,7 +17,8 @@ import java.util.List;
 import kolesnikov.ru.traps.Objects.Trap;
 import kolesnikov.ru.traps.R;
 import kolesnikov.ru.traps.Utils.DateUtils;
-import kolesnikov.ru.traps.gui.TrapsActivity;
+import kolesnikov.ru.traps.Utils.Utils;
+import kolesnikov.ru.traps.gui.TrapActivity;
 
 public class RecycleViewTrapsAdapter extends RecyclerView.Adapter<RecycleViewTrapsAdapter.TrapsViewHolder> {
 
@@ -54,7 +53,7 @@ public class RecycleViewTrapsAdapter extends RecyclerView.Adapter<RecycleViewTra
         holder.container.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, TrapsActivity.class);
+                Intent intent = new Intent(context, TrapActivity.class);
                 intent.putExtra("id", trap.getId());
                 intent.putExtra("date", trap.getDateInspection());
                 intent.putExtra("traceBittes", trap.isTraceBittes());
@@ -63,7 +62,8 @@ public class RecycleViewTrapsAdapter extends RecyclerView.Adapter<RecycleViewTra
                 intent.putExtra("isTrapDamage", trap.isTrapDamage());
                 intent.putExtra("isTrapReplacement", trap.isTrapReplacement());
                 intent.putExtra("isTrapReplacementDo", trap.isTrapReplacementDo());
-                intent.putExtra("photo", trap.getPhoto());
+//                intent.putExtra("photo", trap.getPhoto());
+                Utils.photo = trap.getPhoto();
                 intent.putExtra("barCode", trap.getBarCode());
                 context.startActivity(intent);
 

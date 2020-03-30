@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private FerrisWheelView ferrisWheelView;
     private FloatingActionButton btnAddTrap;
     private TextView tvTitleLoad;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,14 +69,16 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent i = new Intent(MainActivity.this, QrCodeActivity.class);
                 startActivityForResult(i, REQUEST_CODE_QR_SCAN);
+                overridePendingTransition(R.anim.move_left_activity_out, R.anim.move_rigth_activity_in);
             }
         });
 
         btnAddTrap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(MainActivity.this, TrapsActivity.class);
+                Intent i = new Intent(MainActivity.this, TrapsAddActivity.class);
                 startActivity(i);
+                overridePendingTransition(R.anim.move_left_activity_out, R.anim.move_rigth_activity_in);
             }
         });
         handler = new Handler() {
@@ -187,6 +190,8 @@ public class MainActivity extends AppCompatActivity {
         btnAddTrap.setVisibility(View.VISIBLE);
         btnFindTrap.setVisibility(View.VISIBLE);
         tvTitleLoad.setVisibility(View.GONE);
+        toolbar.setVisibility(View.VISIBLE);
+        toolbar.setSystemUiVisibility(View.VISIBLE);
     }
 
     private void getDataServer() {
@@ -201,11 +206,11 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 String line = server.getTraps();
                 traps = TrapsParser.parseTraps(line);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    Thread.sleep(1000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
                 handler.sendEmptyMessage(0);
 
             }
@@ -218,13 +223,16 @@ public class MainActivity extends AppCompatActivity {
         btnAddTrap.setVisibility(View.GONE);
         btnFindTrap.setVisibility(View.GONE);
         tvTitleLoad.setVisibility(View.VISIBLE);
+        toolbar.setVisibility(View.GONE);
+        toolbar.setSystemUiVisibility(View.GONE);
     }
 
     private void init() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Ловушки");
         toolbar.setNavigationIcon(R.drawable.ic_trap);
         setSupportActionBar(toolbar);
+
         rvTraps = findViewById(R.id.rv_traps);
         ferrisWheelView = findViewById(R.id.ferrisWheelView);
         btnFindTrap = findViewById(R.id.bt_find_trap);
