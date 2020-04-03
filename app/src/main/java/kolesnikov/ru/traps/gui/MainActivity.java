@@ -22,15 +22,20 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
 import kolesnikov.ru.traps.Objects.Trap;
 import kolesnikov.ru.traps.R;
-import kolesnikov.ru.traps.Server;
+import kolesnikov.ru.traps.Utils.Utils;
+import kolesnikov.ru.traps.servers.Server;
 import kolesnikov.ru.traps.gui.adapters.RecycleViewTrapsAdapter;
 import kolesnikov.ru.traps.gui.parsers.TrapsParser;
 import kolesnikov.ru.traps.permission.PermissionChecker;
@@ -48,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private View btnFindTrap;
     private RecyclerView rvTraps;
     private List<Trap> traps = new ArrayList<>();
-    private ProgressDialog dialog;
+    private android.app.AlertDialog dialog;
     private Handler handler;
     private RecycleViewTrapsAdapter recycleViewTrapsAdapter;
     private Server server = new Server(this);
@@ -56,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton btnAddTrap;
     private TextView tvTitleLoad;
     private Toolbar toolbar;
+    private Trap trap = null;
+    private FloatingActionButton btnUpdate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,39 +71,46 @@ public class MainActivity extends AppCompatActivity {
 
         init();
 
-        btnFindTrap.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(MainActivity.this, QrCodeActivity.class);
-                startActivityForResult(i, REQUEST_CODE_QR_SCAN);
-                overridePendingTransition(R.anim.move_left_activity_out, R.anim.move_rigth_activity_in);
-            }
-        });
 
-        btnAddTrap.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(MainActivity.this, TrapsAddActivity.class);
-                startActivity(i);
-                overridePendingTransition(R.anim.move_left_activity_out, R.anim.move_rigth_activity_in);
-            }
-        });
         handler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
+                hideDialog();
                 if (msg.what == 0) {
-                    hideDialog();
                     recycleViewTrapsAdapter = new RecycleViewTrapsAdapter(traps, MainActivity.this);
                     LinearLayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
                     rvTraps.setLayoutManager(layoutManager);
                     rvTraps.setAdapter(recycleViewTrapsAdapter);
+                } else if (msg.what == 1) {
+                    Intent intent = new Intent(MainActivity.this, TrapActivity.class);
+                    intent.putExtra("id", trap.getId());
+                    intent.putExtra("date", trap.getDateInspection());
+                    intent.putExtra("traceBittes", trap.isTraceBittes());
+                    intent.putExtra("adhesivePlateReplacement", trap.isAdhesivePlateReplacement());
+                    intent.putExtra("numberPests", trap.getNumberPests());
+                    intent.putExtra("isTrapDamage", trap.isTrapDamage());
+                    intent.putExtra("isTrapReplacement", trap.isTrapReplacement());
+                    intent.putExtra("isTrapReplacementDo", trap.isTrapReplacementDo());
+//                intent.putExtra("photo", trap.getPhoto());
+                    Utils.photo = trap.getPhoto();
+                    intent.putExtra("barCode", trap.getBarCode());
+                    startActivity(intent);
+                    overridePendingTransition(R.anim.move_left_activity_out, R.anim.move_rigth_activity_in);
+                } else if (msg.what == 2) {
+                    showOkDialog2(MainActivity.this, "Не удалось подключиться к серверу, попробуйте позднее");
+                } else if (msg.what == 3) {
+                    showOkDialog2(MainActivity.this, "Не удалось найти ловушку");
                 }
             }
         };
         getPermissions();
-        getDataServer();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getDataServer();
+    }
 
     private void getPermissions() {
         if (!PermissionChecker.isPermissionGranted(this, Manifest.permission.CAMERA)) {
@@ -148,8 +162,8 @@ public class MainActivity extends AppCompatActivity {
             String result = data.getStringExtra("com.blikoon.qrcodescanner.error_decoding_image");
             if (result != null) {
                 AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-                alertDialog.setTitle("Scan Error");
-                alertDialog.setMessage("QR Code could not be scanned");
+                alertDialog.setTitle("Ошибка сканирования");
+                alertDialog.setMessage("QR коде считать не удалось");
                 alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
@@ -165,20 +179,41 @@ public class MainActivity extends AppCompatActivity {
             if (data == null)
                 return;
             //Getting the passed result
-            String result = data.getStringExtra("com.blikoon.qrcodescanner.got_qr_scan_relult");
+            final String result = data.getStringExtra("com.blikoon.qrcodescanner.got_qr_scan_relult");
             Log.d(LOGTAG, "Have scan result in your app activity :" + result);
-            AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-            alertDialog.setTitle("Scan result");
-            alertDialog.setMessage(result);
-            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    trap = server.findTrap(result);
+                    if (trap != null) {
+                        handler.sendEmptyMessage(1);
+                    } else {
+                        try {
+                            trap = findTrap(URLEncoder.encode(result, "UTF-8"));
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
                         }
-                    });
-            alertDialog.show();
+                        if (trap != null) {
+                            handler.sendEmptyMessage(1);
+                        } else {
+                            System.out.println(result);
+                            handler.sendEmptyMessage(3);
+                        }
+                    }
+                }
+            }).start();
 
         }
+    }
+
+    private Trap findTrap(String bacode) {
+        Trap trap = null;
+        for (Trap each : traps) {
+            if (each.getBarCode().equals(bacode)) {
+                return each;
+            }
+        }
+        return trap;
     }
 
     private void hideDialog() {
@@ -189,6 +224,8 @@ public class MainActivity extends AppCompatActivity {
         ferrisWheelView.stopAnimation();
         btnAddTrap.setVisibility(View.VISIBLE);
         btnFindTrap.setVisibility(View.VISIBLE);
+        btnUpdate.setVisibility(View.VISIBLE);
+        rvTraps.setVisibility(View.VISIBLE);
         tvTitleLoad.setVisibility(View.GONE);
         toolbar.setVisibility(View.VISIBLE);
         toolbar.setSystemUiVisibility(View.VISIBLE);
@@ -204,14 +241,12 @@ public class MainActivity extends AppCompatActivity {
 
         new Thread(new Runnable() {
             public void run() {
-                String line = server.getTraps();
-                traps = TrapsParser.parseTraps(line);
-//                try {
-//                    Thread.sleep(1000);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-                handler.sendEmptyMessage(0);
+                traps = server.getTraps();
+                if (traps != null) {
+                    handler.sendEmptyMessage(0);
+                } else {
+                    handler.sendEmptyMessage(2);
+                }
 
             }
         }).start();
@@ -221,6 +256,8 @@ public class MainActivity extends AppCompatActivity {
         ferrisWheelView.startAnimation();
         ferrisWheelView.setVisibility(View.VISIBLE);
         btnAddTrap.setVisibility(View.GONE);
+        btnUpdate.setVisibility(View.GONE);
+        rvTraps.setVisibility(View.GONE);
         btnFindTrap.setVisibility(View.GONE);
         tvTitleLoad.setVisibility(View.VISIBLE);
         toolbar.setVisibility(View.GONE);
@@ -237,11 +274,58 @@ public class MainActivity extends AppCompatActivity {
         ferrisWheelView = findViewById(R.id.ferrisWheelView);
         btnFindTrap = findViewById(R.id.bt_find_trap);
         btnAddTrap = findViewById(R.id.bt_add_trap);
+        btnUpdate = findViewById(R.id.bt_update);
         tvTitleLoad = findViewById(R.id.title_load);
+        initListeners();
     }
 
-    private void initListeners(){
+    private void initListeners() {
+        btnUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getDataServer();
+            }
+        });
+        btnFindTrap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivity.this, QrCodeActivity.class);
+                startActivityForResult(i, REQUEST_CODE_QR_SCAN);
+                overridePendingTransition(R.anim.move_left_activity_out, R.anim.move_rigth_activity_in);
+            }
+        });
 
+        btnAddTrap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivity.this, TrapsAddActivity.class);
+                startActivity(i);
+                overridePendingTransition(R.anim.move_left_activity_out, R.anim.move_rigth_activity_in);
+            }
+        });
+    }
+
+    public void showOkDialog2(final Activity activity, final String errorText) {
+        LayoutInflater layoutinflater = LayoutInflater.from(activity);
+        View view = layoutinflater.inflate(R.layout.ok_dialog_app, null);
+        android.app.AlertDialog.Builder errorDialog = new android.app.AlertDialog.Builder(activity);
+        errorDialog.setView(view);
+        Button btnOk = view.findViewById(R.id.btn_error_dialog_ok);
+        TextView message = view.findViewById(R.id.message);
+        message.setText(errorText);
+        final android.app.AlertDialog dialog = errorDialog.create();
+        if (activity != null && !activity.isFinishing() && !activity.isDestroyed()) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.show();
+        }
+        btnOk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (activity != null && !activity.isFinishing() && !activity.isDestroyed()) {
+                    dialog.dismiss();
+                }
+            }
+        });
     }
 
 }

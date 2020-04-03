@@ -1,18 +1,15 @@
 package kolesnikov.ru.traps.gui;
 
 import android.app.ProgressDialog;
-import android.graphics.PointF;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,7 +20,7 @@ import java.util.Objects;
 
 import kolesnikov.ru.traps.Objects.Trap;
 import kolesnikov.ru.traps.R;
-import kolesnikov.ru.traps.Server;
+import kolesnikov.ru.traps.servers.Server;
 import kolesnikov.ru.traps.gui.adapters.RecycleViewTrapsAdapter;
 import kolesnikov.ru.traps.gui.parsers.TrapsParser;
 
@@ -75,19 +72,19 @@ public class FirstFragment extends Fragment  {
         }
     }
     private void getDataServer(){
-        dialog = new ProgressDialog(getActivity());
-        dialog.setMessage("Синхронизация данных...");
-        dialog.setIndeterminate(true);
-        dialog.setCancelable(false);
-        dialog.show();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String line = server.getTraps();
-                traps = TrapsParser.parseTraps(line);
-                handler.sendEmptyMessage(0);
-            }
-        }).start();
+//        dialog = new ProgressDialog(getActivity());
+//        dialog.setMessage("Синхронизация данных...");
+//        dialog.setIndeterminate(true);
+//        dialog.setCancelable(false);
+//        dialog.show();
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                String line = server.getTraps();
+//                traps = TrapsParser.parseTraps(line);
+//                handler.sendEmptyMessage(0);
+//            }
+//        }).start();
     }
 
     private void init(View view){

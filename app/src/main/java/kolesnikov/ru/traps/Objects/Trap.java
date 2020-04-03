@@ -2,19 +2,38 @@ package kolesnikov.ru.traps.Objects;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ImageFormat;
+import android.graphics.Rect;
+import android.graphics.YuvImage;
 import android.util.Base64;
 
+import com.google.gson.annotations.SerializedName;
+
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.ByteArrayOutputStream;
+
 public class Trap {
-    private String id;
-    private String barCode;
+    @SerializedName("id")
+    private String id = "";
+    @SerializedName("barCode")
+    private String barCode = "";
+    @SerializedName("dateInspection")
     private String dateInspection;
+    @SerializedName("traceBittes")
     private boolean traceBittes = false;
+    @SerializedName("adhesivePlateReplacement")
     private boolean adhesivePlateReplacement = false;
+    @SerializedName("numberPests")
     private int numberPests = 0;
+    @SerializedName("isTrapDamage")
     private boolean isTrapDamage = false;
+    @SerializedName("isTrapReplacement")
     private boolean isTrapReplacement = false;
+    @SerializedName("isTrapReplacementDo")
     private boolean isTrapReplacementDo = false;
-    private String photo;
+    @SerializedName("photo")
+    private String photo = "";
     private Bitmap picture;
 
     /**
@@ -129,16 +148,31 @@ public class Trap {
 
     public static Bitmap setImage(String imageUrl) {
         if (imageUrl != null && !imageUrl.isEmpty()) {
-            String imageStr = imageUrl;
+            String imageStr = imageUrl.replaceAll("\"", "").replaceAll("\n", "");
+            imageStr = StringUtils.remove(imageStr, "\\n");
             try {
-                imageStr = imageUrl.substring(imageUrl.indexOf(","));
+                imageStr = imageStr.substring(imageUrl.indexOf(","));
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            byte[] imageAsBytes = Base64.decode(imageStr.getBytes(), 0);
+            byte[] imageAsBytes = Base64.decode(imageStr.getBytes(), Base64.NO_WRAP);
             return BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
         }
         return null;
+    }
+
+    public static Bitmap stringtoBitmap(String string) {
+        Bitmap bitmap = null;
+        try {
+            YuvImage yuvimage = new YuvImage(string.getBytes(), ImageFormat.YUY2, 640  , 820, null);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            yuvimage.compressToJpeg(new Rect(0, 0, 20, 20), 100, baos);
+            byte[] jdata = baos.toByteArray();
+            bitmap = BitmapFactory.decodeByteArray(jdata, 0, jdata.length);
+        } catch (Exception e) {
+
+        }
+        return bitmap;
     }
 }

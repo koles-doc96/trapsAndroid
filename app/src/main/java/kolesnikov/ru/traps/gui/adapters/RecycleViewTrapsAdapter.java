@@ -46,7 +46,7 @@ public class RecycleViewTrapsAdapter extends RecyclerView.Adapter<RecycleViewTra
     public void onBindViewHolder(@NonNull TrapsViewHolder holder, int position) {
 
         final Trap trap = traps.get(position);
-        holder.number.setText("Ловушка №" + trap.getId());
+        holder.number.setText("Идентификатор: №" + trap.getId());
         Date date = DateUtils.stringToDate(trap.getDateInspection());
         holder.date.setText(DateUtils.simpleDateFormat.format(date));
 

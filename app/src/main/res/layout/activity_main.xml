@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="#D4D1C4"
     android:layout_height="match_parent"
+    android:background="#D4D1C4"
     tools:context=".gui.MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -16,12 +16,12 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            app:title="Ловушки"
-            app:titleTextColor="@color/qr_code_white"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             android:backgroundTint="#5FA511"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            app:popupTheme="@style/AppTheme.PopupOverlay"
+            app:title="Ловушки"
+            app:titleTextColor="@color/qr_code_white" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -30,11 +30,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="56dp"
+        android:layout_marginBottom="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:listitem="@layout/item_layout_trap" />
+        />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/bt_find_trap"
@@ -52,37 +53,48 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        app:rippleColor="#5FA511"
-        app:backgroundTint="#5FA511"
         android:layout_margin="@dimen/fab_margin"
         android:tint="@color/qr_code_white"
+        app:backgroundTint="#5FA511"
+        app:rippleColor="#5FA511"
         app:srcCompat="@drawable/ic_add_trap" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/bt_update"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:tint="@color/qr_code_white"
+        app:backgroundTint="#5FA511"
+        app:rippleColor="#5FA511"
+        app:srcCompat="@drawable/ic_update_trap" />
 
     <ru.github.igla.ferriswheel.FerrisWheelView
         android:id="@+id/ferrisWheelView"
         android:layout_width="match_parent"
-        android:visibility="gone"
-        app:fwv_wheelStrokeColor  = "@color/qr_code_white"
-        app:fwv_baseStrokeColor  = "@color/qr_code_white"
-        app:fwv_cabinFillColor  = "@color/qr_code_white"
-        app:fwv_cabinLineStrokeColor  = "@color/qr_code_white"
         android:layout_height="match_parent"
         android:layout_gravity="center"
+        android:visibility="gone"
+        app:fwv_baseStrokeColor="@color/qr_code_white"
+        app:fwv_cabinFillColor="@color/qr_code_white"
+        app:fwv_cabinLineStrokeColor="@color/qr_code_white"
         app:fwv_cabinsNumber="8"
-        app:fwv_rotateSpeed="6" />
+        app:fwv_rotateSpeed="6"
+        app:fwv_wheelStrokeColor="@color/qr_code_white" />
 
-        <TextView
-            android:id="@+id/title_load"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:fontFamily="@font/roboto_medium"
-            android:textSize="24sp"
-            android:gravity="center"
-            android:layout_marginBottom="24dp"
-            android:layout_gravity="bottom|center"
-            android:textColor="@color/qr_code_white"
-            android:text="Синхронизация данных" />
+    <TextView
+        android:id="@+id/title_load"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="24dp"
+        android:fontFamily="@font/roboto_medium"
+        android:gravity="center"
+        android:text="Синхронизация данных"
+        android:textColor="@color/qr_code_white"
+        android:textSize="24sp" />
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

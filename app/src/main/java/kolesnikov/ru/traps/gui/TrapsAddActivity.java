@@ -2,11 +2,12 @@ package kolesnikov.ru.traps.gui;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.FileProvider;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -14,20 +15,21 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.os.StrictMode;
 import android.provider.MediaStore;
-import android.util.Base64;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.webkit.MimeTypeMap;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.blikoon.qrcodescanner.QrCodeActivity;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,8 +38,10 @@ import java.util.Date;
 
 import kolesnikov.ru.traps.Objects.Trap;
 import kolesnikov.ru.traps.R;
+import kolesnikov.ru.traps.servers.Server;
 import kolesnikov.ru.traps.Utils.BitmapUtils;
 import kolesnikov.ru.traps.Utils.ToastUtils;
+import kolesnikov.ru.traps.Utils.Utils;
 import kolesnikov.ru.traps.permission.PermissionChecker;
 
 import static com.blikoon.qrcodescanner.utils.QrUtils.calculateInSampleSize;
@@ -48,7 +52,7 @@ public class TrapsAddActivity extends AppCompatActivity {
     private Trap trap = new Trap();
     private ImageView ivPhoto;
     private ImageView ivQrCode;
-    private static final int REQUEST_CODE_QR_SCAN = 101;
+    public static final int REQUEST_CODE_QR_SCAN = 101;
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_STORAGE = 2;
     private ImageView ivAddPhoto;
@@ -56,12 +60,20 @@ public class TrapsAddActivity extends AppCompatActivity {
     boolean isQRCode = false;
     boolean isPhoto = false;
     private Button btnSave;
-
+    private AlertDialog dialog;
+    private SwitchCompat swTraceBittes;
+    private SwitchCompat swAdhesivePlateReplacement;
+    private SwitchCompat swIsTrapDamage;
+    private SwitchCompat swIsTrapReplacement;
+    private SwitchCompat swIsTrapReplacementDo;
+    private EditText edNumberPests;
+    private Server server;
+    private Handler handler;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_traps);
-
+        server = new Server(this);
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Ловушка");
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
@@ -75,14 +87,62 @@ public class TrapsAddActivity extends AppCompatActivity {
         });
         init();
         initListeners();
-    }
 
+        handler = new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+                if(!isFinishing() && !isDestroyed() && dialog != null) {
+                    dialog.dismiss();
+                }
+                if (msg.what == 0) {
+                    Snackbar.make(ivAddPhoto, "Не удалось сохранить, QR code должен быть уникальным", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                } else if (msg.what == 1) {
+                    showOkDialog2(TrapsAddActivity.this,  "Успешно сохранено");
+                }else if (msg.what == 2) {
+
+                    Snackbar.make(ivAddPhoto, "Ошибка, попробуйте позднее", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
+            }
+        };
+
+    }
+    public  void showOkDialog2(final Activity activity, final String errorText) {
+        LayoutInflater layoutinflater = LayoutInflater.from(activity);
+        View view = layoutinflater.inflate(R.layout.ok_dialog_app, null);
+        android.app.AlertDialog.Builder errorDialog = new android.app.AlertDialog.Builder(activity);
+        errorDialog.setView(view);
+        Button btnOk = view.findViewById(R.id.btn_error_dialog_ok);
+        TextView message = view.findViewById(R.id.message);
+        message.setText(errorText);
+        final AlertDialog dialog = errorDialog.create();
+        if (activity != null && !activity.isFinishing() && !activity.isDestroyed()) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.show();
+        }
+        btnOk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (activity != null && !activity.isFinishing() && !activity.isDestroyed()) {
+                    dialog.dismiss();
+                }
+                finish();
+            }
+        });
+    }
 
     private void init(){
         ivPhoto = findViewById(R.id.iv_photo);
         ivQrCode = findViewById(R.id.iv_qr_code);
         ivAddPhoto = findViewById(R.id.iv_add_photo);
         btnSave = findViewById(R.id.btn_save);
+        swTraceBittes = (SwitchCompat) findViewById(R.id.sw_traceBittes);
+        swAdhesivePlateReplacement = (SwitchCompat) findViewById(R.id.sw_adhesivePlateReplacement);
+        swIsTrapDamage = (SwitchCompat) findViewById(R.id.sw_isTrapDamage);
+        swIsTrapReplacement = (SwitchCompat) findViewById(R.id.sw_isTrapReplacement);
+        swIsTrapReplacementDo = (SwitchCompat) findViewById(R.id.sw_isTrapReplacementDo);
+        edNumberPests =  findViewById(R.id.ed_number_pests);
     }
 
     private void initListeners(){
@@ -125,24 +185,31 @@ public class TrapsAddActivity extends AppCompatActivity {
             }
         });
 
-//        ivPhoto.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                String rootPath = Environment.getExternalStorageDirectory().toString();
-//
-//                Intent intent = new Intent(Intent.ACTION_VIEW);
-//                MimeTypeMap myMime = MimeTypeMap.getSingleton();
-//                Uri fileURI = FileProvider.getUriForFile(TrapsAddActivity.this, getApplicationContext().getPackageName() + ".my.package.name.provider", new File(mCurrentPhotoPath));
-//                intent.setDataAndType(fileURI, myMime.getMimeTypeFromExtension((mCurrentPhotoPath.substring(mCurrentPhotoPath.lastIndexOf(".")+1))));
-//                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-//                try {
-//                    startActivity(intent);
-//                } catch (Exception e) {
-//                    Snackbar.make(ivAddPhoto, "Нет приложения для открытия данного файла", Snackbar.LENGTH_LONG)
-//                            .setAction("Action", null).show();
-//                }
-//            }
-//        });
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showProcessingDialog(TrapsAddActivity.this, "Отправка на сервер..");
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String line = "xxx";
+                        Utils.photo = trap.getPhoto();
+                        line = server.addTrap(trap.getBarCode(), String.valueOf(swTraceBittes.isChecked()), String.valueOf(swAdhesivePlateReplacement.isChecked()),
+                                edNumberPests.getText().toString(), String.valueOf(swIsTrapDamage.isChecked()),
+                                String.valueOf(swIsTrapReplacement.isChecked()), String.valueOf(swIsTrapReplacementDo.isChecked()), trap.getPhoto());
+
+                        if(line.equals("1")){
+                            handler.sendEmptyMessage(1);
+                        }else if(line.equals("-1")){
+                            handler.sendEmptyMessage(0);
+                        }else {
+                            handler.sendEmptyMessage(2);
+                        }
+                    }
+                }).start();
+            }
+        });
 
     }
 
@@ -212,6 +279,7 @@ public class TrapsAddActivity extends AppCompatActivity {
 
                 ivPhoto.setImageBitmap(bitmap);
                 trap.setPhoto(saveBitmap(bitmap));
+                Utils.photo = trap.getPhoto();
                 isPhoto = true;
                 if(isQRCode){
                     btnSave.setVisibility(View.VISIBLE);
@@ -262,6 +330,22 @@ public class TrapsAddActivity extends AppCompatActivity {
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
+    }
+
+    public void showProcessingDialog(final Activity activity, final String errorText) {
+        LayoutInflater layoutinflater = LayoutInflater.from(activity);
+        View view = layoutinflater.inflate(R.layout.dialog_processing, null);
+        android.app.AlertDialog.Builder errorDialog = new android.app.AlertDialog.Builder(activity);
+        errorDialog.setView(view);
+        TextView tvError = view.findViewById(R.id.tv_count_error_dialog_text);
+        tvError.setText(errorText);
+        dialog = errorDialog.create();
+        dialog.setCancelable(false);
+        if (activity != null && !activity.isFinishing() && !activity.isDestroyed()) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.show();
+        }
+
     }
 
 }
