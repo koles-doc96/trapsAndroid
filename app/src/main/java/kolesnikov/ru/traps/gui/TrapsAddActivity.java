@@ -69,6 +69,11 @@ public class TrapsAddActivity extends AppCompatActivity {
     private EditText edNumberPests;
     private Server server;
     private Handler handler;
+    private EditText edNameTrap;
+    private EditText edComment;
+    private EditText edCommentPhoto;
+    private View llComentPhoto;
+    private EditText edNumbers;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -143,6 +148,11 @@ public class TrapsAddActivity extends AppCompatActivity {
         swIsTrapReplacement = (SwitchCompat) findViewById(R.id.sw_isTrapReplacement);
         swIsTrapReplacementDo = (SwitchCompat) findViewById(R.id.sw_isTrapReplacementDo);
         edNumberPests =  findViewById(R.id.ed_number_pests);
+        edNumbers = findViewById(R.id.ed_numbers);
+        edNameTrap = findViewById(R.id.ed_name_trap);
+        edComment = findViewById(R.id.ed_comment);
+        edCommentPhoto = findViewById(R.id.ed_comment_photo);
+        llComentPhoto = findViewById(R.id.ll_coment_photo);
     }
 
     private void initListeners(){
@@ -197,7 +207,8 @@ public class TrapsAddActivity extends AppCompatActivity {
                         Utils.photo = trap.getPhoto();
                         line = server.addTrap(trap.getBarCode(), String.valueOf(swTraceBittes.isChecked()), String.valueOf(swAdhesivePlateReplacement.isChecked()),
                                 edNumberPests.getText().toString(), String.valueOf(swIsTrapDamage.isChecked()),
-                                String.valueOf(swIsTrapReplacement.isChecked()), String.valueOf(swIsTrapReplacementDo.isChecked()), trap.getPhoto());
+                                String.valueOf(swIsTrapReplacement.isChecked()), String.valueOf(swIsTrapReplacementDo.isChecked()), trap.getPhoto(),
+                                edNumbers.getText().toString(), edComment.getText().toString(), edCommentPhoto.getText().toString(), edNameTrap.getText().toString());
 
                         if(line.equals("1")){
                             handler.sendEmptyMessage(1);

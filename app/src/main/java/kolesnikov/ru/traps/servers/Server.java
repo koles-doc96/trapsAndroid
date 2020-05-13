@@ -19,6 +19,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import kolesnikov.ru.traps.Objects.Keys;
 import kolesnikov.ru.traps.Objects.Trap;
 import kolesnikov.ru.traps.Utils.Utils;
 import okhttp3.ResponseBody;
@@ -35,6 +36,7 @@ public class Server {
 
     public static final String GET_TRAPS = "getTraps/";
     public static final String FIND_TRAP_FOR_BARCODE = "find?";
+    public static final String FIND_KEY = "key?";
     public static final String ADD_TRAP = "add?";
     public static final String EDIT_TRAP = "edit?";
     //    private static final String SERVER_ADDR = "http://localhost:8001/";
@@ -83,6 +85,7 @@ public class Server {
                     // говорим ретрофиту что для сериализации необходимо использовать GSON
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
+
             Call<List<Trap>> query = retrofit.create(IRetrofit.class).findTrap(URLEncoder.encode(barcode, "UTF-8"));
             Response<List<Trap>> execute = query.execute();
             List<Trap> body = execute.body();
@@ -96,9 +99,18 @@ public class Server {
         return null;
     }
 
+    public String findkKey(String key) {
+        try {
+            return new getKeyAsync().execute(key).get();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     // Добавление ловушки
     public String addTrap(String barcode, String traceBittes, String adhesivePlateReplacement,
-                          String numberPests, String isTrapDamage, String isTrapReplacement, String isTrapReplacementDo, String photo) {
+                          String numberPests, String isTrapDamage, String isTrapReplacement, String isTrapReplacementDo, String photo, String customNumber, String comment, String commentPhoto, String nameTrap) {
         line = "";
         try {
             JSONObject paramObject = new JSONObject();
@@ -109,7 +121,7 @@ public class Server {
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
             Call<String> query = retrofit.create(IRetrofit.class).addTrap(URLEncoder.encode(barcode, "UTF-8"), traceBittes, adhesivePlateReplacement, numberPests,
-                    isTrapDamage, isTrapReplacement, isTrapReplacementDo, photo);
+                    isTrapDamage, isTrapReplacement, isTrapReplacementDo, customNumber, comment, commentPhoto, nameTrap, photo);
             Response<String> execute = query.execute();
             System.out.println(execute.message());
             System.out.println(execute.body());
@@ -122,21 +134,18 @@ public class Server {
     }
 
     public String editTrap(String id, String traceBittes, String adhesivePlateReplacement,
-                           String numberPests, String isTrapDamage, String isTrapReplacement, String isTrapReplacementDo, String photo) {
+                           String numberPests, String isTrapDamage, String isTrapReplacement, String isTrapReplacementDo, String photo,
+                           String customNumber, String comment, String commentPhoto, String nameTrap) {
         line = "";
         try {
-            JSONObject paramObject = new JSONObject();
-            paramObject.put("file", "data:image/png;base64," + photo); //Base64 image
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(SERVER_ADDR) // Адрес сервера
                     // говорим ретрофиту что для сериализации необходимо использовать GSON
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
             Call<String> query = retrofit.create(IRetrofit.class).editTrap(id, traceBittes, adhesivePlateReplacement, numberPests,
-                    isTrapDamage, isTrapReplacement, isTrapReplacementDo, photo);
+                    isTrapDamage, isTrapReplacement, isTrapReplacementDo, customNumber, comment, commentPhoto, nameTrap, photo);
             Response<String> execute = query.execute();
-            System.out.println(execute.message());
-            System.out.println(execute.body());
             return execute.body();
         } catch (Exception e) {
             e.printStackTrace();
@@ -182,60 +191,29 @@ public class Server {
         }
     }
 
-    static class AddTrapAsync extends AsyncTask<String, String, String> {
+    public static class getKeyAsync extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... params) {
             String line = "";
             try {
-                DefaultHttpClient httpclient = new DefaultHttpClient();
+//            line = new FindTrapForBarcodeAsync().execute(barcode).get();
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl(SERVER_ADDR) // Адрес сервера
+                        // говорим ретрофиту что для сериализации необходимо использовать GSON
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build();
 
-                String http = SERVER_ADDR + ADD_TRAP + "barCode=" + URLEncoder.encode(params[0], "UTF-8") +
-                        "&traceBittes=" + params[1] + "&adhesivePlateReplacement=" + params[2] +
-                        "&numberPests=" + params[3] + "&isTrapDamage=" + params[4] +
-                        "&isTrapReplacement=" + params[5] + "&isTrapReplacementDo=" + params[6] +
-                        "&photo=" + "2";
-
-                HttpURLConnection urlConnection = null;
-                try {
-
-                    System.setProperty("http.keepAlive", "false");
-                    URL url = new URL(http);
-                    urlConnection = (HttpURLConnection) url.openConnection();
-//                    urlConnection.disconnect();
-//                    urlConnection.setRequestProperty("Content-Type", "text/plain; charset=utf-8");
-//                    urlConnection.setConnectTimeout(10000);
-//                    urlConnection.setRequestMethod("POST");
-//                    urlConnection.setReadTimeout(10000);
-//
-//                    urlConnection.setDoOutput(true);
-//                    urlConnection.setUseCaches(false);
-//                    urlConnection.setRequestProperty("Host", SERVER_HOST);
-//                    urlConnection.connect();
-
-                    OutputStreamWriter out = new OutputStreamWriter(urlConnection.getOutputStream(), "UTF-8");
-                    out.write("skdjflsdflsjkldjflsjlkdjflsldj");
-                    out.close();
-
-                    int HttpResult = urlConnection.getResponseCode();
-                    if (HttpResult == HttpURLConnection.HTTP_OK) {
-                        String response = "";
-                        line = "";
-                        BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                        while ((response = br.readLine()) != null) {
-                            line += response;
-                        }
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    System.out.println(e.getMessage());
-                    assert urlConnection != null;
-                    urlConnection.disconnect();
+                Call<List<Keys>> query = retrofit.create(IRetrofit.class).findKey(URLEncoder.encode(params[0], "UTF-8"));
+                Response<List<Keys>> execute = query.execute();
+                List<Keys> body = execute.body();
+                if (!body.isEmpty()) {
+                    return "1";
                 }
-            } catch (Exception e) {
+            } catch (
+                    Exception e) {
                 e.printStackTrace();
             }
-            return line;
+            return null;
         }
     }
 

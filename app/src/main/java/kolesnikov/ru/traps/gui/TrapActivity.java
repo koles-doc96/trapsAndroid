@@ -20,7 +20,6 @@ import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -29,8 +28,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.blikoon.qrcodescanner.QrCodeActivity;
-import com.bumptech.glide.Glide;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
@@ -68,12 +65,16 @@ public class TrapActivity extends AppCompatActivity {
     private SwitchCompat swIsTrapReplacementDo;
     private EditText edNumberPests;
     private TextView tvDate;
-    private TextView tvNumbers;
+    private EditText edNumbers;
     private boolean isEdit = false;
     private Server server;
     private String mCurrentPhotoPath = "";
     private Handler handler;
     private AlertDialog dialog;
+    private EditText edNameTrap;
+    private EditText edComment;
+    private EditText edCommentPhoto;
+    private View llComentPhoto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,6 +123,10 @@ public class TrapActivity extends AppCompatActivity {
             trap.setTrapDamage(extras.getBoolean("isTrapDamage"));
             trap.setTrapReplacement(extras.getBoolean("isTrapReplacement"));
             trap.setTrapReplacementDo(extras.getBoolean("isTrapReplacementDo"));
+            trap.setCustomNumber(extras.getString("customNumber"));
+            trap.setComment(extras.getString("comment"));
+            trap.setCommentPhoto(extras.getString("commentPhoto"));
+            trap.setNameTrap(extras.getString("nameTrap"));
             trap.setPhoto(Utils.photo);
         }
     }
@@ -137,7 +142,11 @@ public class TrapActivity extends AppCompatActivity {
         swIsTrapReplacementDo = (SwitchCompat) findViewById(R.id.sw_isTrapReplacementDo);
         edNumberPests = findViewById(R.id.ed_number_pests);
         tvDate = findViewById(R.id.tv_date);
-        tvNumbers = findViewById(R.id.tv_numbers);
+        edNumbers = findViewById(R.id.tv_numbers);
+        edNameTrap = findViewById(R.id.ed_name_trap);
+        edComment = findViewById(R.id.ed_comment);
+        edCommentPhoto = findViewById(R.id.ed_comment_photo);
+        llComentPhoto = findViewById(R.id.ll_coment_photo);
         server = new Server(this);
 
         swTraceBittes.setChecked(trap.isTraceBittes());
@@ -146,7 +155,10 @@ public class TrapActivity extends AppCompatActivity {
         swIsTrapReplacement.setChecked(trap.isTrapReplacement());
         swIsTrapReplacementDo.setChecked(trap.isTrapReplacementDo());
         edNumberPests.setText(String.valueOf(trap.getNumberPests()));
-        tvNumbers.setText(String.valueOf(trap.getId()));
+        edNumbers.setText(String.valueOf(trap.getCustomNumber()));
+        edComment.setText(String.valueOf(trap.getComment()));
+        edCommentPhoto.setText(String.valueOf(trap.getCommentPhoto()));
+        edNameTrap.setText(String.valueOf(trap.getNameTrap()));
         Date date = DateUtils.stringToDate(trap.getDateInspection());
         tvDate.setText(DateUtils.simpleDateFormat.format(date));
 
@@ -170,7 +182,8 @@ public class TrapActivity extends AppCompatActivity {
                     public void run() {
                         String line = server.editTrap(trap.getId(), String.valueOf(swTraceBittes.isChecked()), String.valueOf(swAdhesivePlateReplacement.isChecked()),
                                 edNumberPests.getText().toString(), String.valueOf(swIsTrapDamage.isChecked()),
-                                String.valueOf(swIsTrapReplacement.isChecked()), String.valueOf(swIsTrapReplacementDo.isChecked()), trap.getPhoto());
+                                String.valueOf(swIsTrapReplacement.isChecked()), String.valueOf(swIsTrapReplacementDo.isChecked()), trap.getPhoto(),
+                                edNumbers.getText().toString(), edComment.getText().toString(), edCommentPhoto.getText().toString(), edNameTrap.getText().toString());
                         if (line.equals("1")) {
                             handler.sendEmptyMessage(1);
                         }else {
@@ -181,7 +194,7 @@ public class TrapActivity extends AppCompatActivity {
             }
         });
 
-        edNumberPests.addTextChangedListener(new TextWatcher() {
+        TextWatcher watcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -197,7 +210,12 @@ public class TrapActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
 
             }
-        });
+        };
+        edNumberPests.addTextChangedListener(watcher);
+        edCommentPhoto.addTextChangedListener(watcher);
+        edNameTrap.addTextChangedListener(watcher);
+        edNumbers.addTextChangedListener(watcher);
+        edComment.addTextChangedListener(watcher);
         ivAddPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -46,7 +46,8 @@ public class RecycleViewTrapsAdapter extends RecyclerView.Adapter<RecycleViewTra
     public void onBindViewHolder(@NonNull TrapsViewHolder holder, int position) {
 
         final Trap trap = traps.get(position);
-        holder.number.setText("Идентификатор: №" + trap.getId());
+        holder.number.setText("Номер: №" + trap.getCustomNumber());
+        holder.comment.setText("Название: " + trap.getNameTrap());
         Date date = DateUtils.stringToDate(trap.getDateInspection());
         holder.date.setText(DateUtils.simpleDateFormat.format(date));
 
@@ -62,6 +63,10 @@ public class RecycleViewTrapsAdapter extends RecyclerView.Adapter<RecycleViewTra
                 intent.putExtra("isTrapDamage", trap.isTrapDamage());
                 intent.putExtra("isTrapReplacement", trap.isTrapReplacement());
                 intent.putExtra("isTrapReplacementDo", trap.isTrapReplacementDo());
+                intent.putExtra("customNumber", trap.getCustomNumber());
+                intent.putExtra("comment", trap.getComment());
+                intent.putExtra("commentPhoto", trap.getCommentPhoto());
+                intent.putExtra("nameTrap", trap.getNameTrap());
 //                intent.putExtra("photo", trap.getPhoto());
                 Utils.photo = trap.getPhoto();
                 intent.putExtra("barCode", trap.getBarCode());

@@ -74,13 +74,13 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/roboto_medium"
-                                android:text="Идентификатор:"
+                                android:text="Номер:"
                                 android:textColor="#596670"
                                 android:textSize="16sp"
                                 android:textStyle="bold"
                                 android:visibility="visible" />
 
-                            <TextView
+                            <EditText
                                 android:id="@+id/tv_numbers"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -120,7 +120,32 @@
                                 android:visibility="visible" />
                         </LinearLayout>
                     </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="16dp"
+                        android:layout_marginBottom="16dp"
+                        android:orientation="horizontal">
 
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Название"
+                            android:textColor="#596670"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/ed_name_trap"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:ems="10"
+                            android:gravity="center"
+                            />
+                    </LinearLayout>
                     <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/sw_traceBittes"
                         android:layout_width="match_parent"
@@ -217,6 +242,32 @@
                             android:gravity="center"
                             android:inputType="numberSigned" />
                     </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="16dp"
+                        android:layout_marginBottom="16dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Коментарий"
+                            android:textColor="#596670"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/ed_comment"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:ems="10"
+                            android:gravity="center"
+                            />
+                    </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -273,7 +324,33 @@
                             android:layout_marginBottom="16dp" />
 
                     </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/ll_coment_photo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="16dp"
+                        android:layout_marginBottom="16dp"
+                        android:orientation="horizontal">
 
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Коментарий к фото"
+                            android:textColor="#596670"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/ed_comment_photo"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:ems="10"
+                            android:gravity="center"
+                            />
+                    </LinearLayout>
                     <Button xmlns:app="http://schemas.android.com/apk/res-auto"
                         android:id="@+id/btn_save"
                         android:layout_width="200dp"

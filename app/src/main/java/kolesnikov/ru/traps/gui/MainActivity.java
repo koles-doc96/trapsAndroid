@@ -25,6 +25,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.UnsupportedEncodingException;
@@ -32,6 +34,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import kolesnikov.ru.traps.Objects.Keys;
 import kolesnikov.ru.traps.Objects.Trap;
 import kolesnikov.ru.traps.R;
 import kolesnikov.ru.traps.Utils.Utils;
@@ -91,6 +94,10 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra("isTrapDamage", trap.isTrapDamage());
                     intent.putExtra("isTrapReplacement", trap.isTrapReplacement());
                     intent.putExtra("isTrapReplacementDo", trap.isTrapReplacementDo());
+                    intent.putExtra("customNumber", trap.getCustomNumber());
+                    intent.putExtra("comment", trap.getComment());
+                    intent.putExtra("commentPhoto", trap.getCommentPhoto());
+                    intent.putExtra("nameTrap", trap.getNameTrap());
 //                intent.putExtra("photo", trap.getPhoto());
                     Utils.photo = trap.getPhoto();
                     intent.putExtra("barCode", trap.getBarCode());
@@ -104,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         getPermissions();
+        showKeyDialog(this);
     }
 
     @Override
@@ -323,6 +331,46 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (activity != null && !activity.isFinishing() && !activity.isDestroyed()) {
                     dialog.dismiss();
+                }
+            }
+        });
+    }
+
+    public void showKeyDialog(final Activity activity) {
+        LayoutInflater layoutinflater = LayoutInflater.from(activity);
+        View view = layoutinflater.inflate(R.layout.set_keys_dialog, null);
+        android.app.AlertDialog.Builder errorDialog = new android.app.AlertDialog.Builder(activity);
+        errorDialog.setView(view);
+        final Button btnOk = view.findViewById(R.id.btn_error_dialog_ok);
+        final ProgressBar progress = view.findViewById(R.id.progress);
+        final EditText key = view.findViewById(R.id.ed_key);
+        final android.app.AlertDialog dialog = errorDialog.create();
+        if (activity != null && !activity.isFinishing() && !activity.isDestroyed()) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.setCancelable(false);
+            dialog.show();
+        }
+        btnOk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (activity != null && !activity.isFinishing() && !activity.isDestroyed()) {
+                    progress.setVisibility(View.VISIBLE);
+                    btnOk.setVisibility(View.GONE);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            String keys = server.findkKey(key.getText().toString());
+                            if (keys != null) {
+                                dialog.dismiss();
+                            } else {
+                                progress.setVisibility(View.GONE);
+                                btnOk.setVisibility(View.VISIBLE);
+                                Snackbar.make(btnFindTrap, "Введите правильный лицензионный ключ", Snackbar.LENGTH_LONG)
+                                        .setAction("Action", null).show();
+                            }
+                        }
+                    });
+
                 }
             }
         });
