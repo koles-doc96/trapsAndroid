@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra("comment", trap.getComment());
                     intent.putExtra("commentPhoto", trap.getCommentPhoto());
                     intent.putExtra("nameTrap", trap.getNameTrap());
+                    intent.putExtra("kind", trap.getKind());
 //                intent.putExtra("photo", trap.getPhoto());
                     Utils.photo = trap.getPhoto();
                     intent.putExtra("barCode", trap.getBarCode());

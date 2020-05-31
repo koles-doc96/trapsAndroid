@@ -75,6 +75,7 @@ public class TrapActivity extends AppCompatActivity {
     private EditText edComment;
     private EditText edCommentPhoto;
     private View llComentPhoto;
+    private EditText edKind;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,6 +128,7 @@ public class TrapActivity extends AppCompatActivity {
             trap.setComment(extras.getString("comment"));
             trap.setCommentPhoto(extras.getString("commentPhoto"));
             trap.setNameTrap(extras.getString("nameTrap"));
+            trap.setKind(extras.getString("kind"));
             trap.setPhoto(Utils.photo);
         }
     }
@@ -147,6 +149,7 @@ public class TrapActivity extends AppCompatActivity {
         edComment = findViewById(R.id.ed_comment);
         edCommentPhoto = findViewById(R.id.ed_comment_photo);
         llComentPhoto = findViewById(R.id.ll_coment_photo);
+        edKind = findViewById(R.id.ed_kind);
         server = new Server(this);
 
         swTraceBittes.setChecked(trap.isTraceBittes());
@@ -159,6 +162,7 @@ public class TrapActivity extends AppCompatActivity {
         edComment.setText(String.valueOf(trap.getComment()));
         edCommentPhoto.setText(String.valueOf(trap.getCommentPhoto()));
         edNameTrap.setText(String.valueOf(trap.getNameTrap()));
+        edKind.setText(String.valueOf(trap.getKind()));
         Date date = DateUtils.stringToDate(trap.getDateInspection());
         tvDate.setText(DateUtils.simpleDateFormat.format(date));
 
@@ -183,10 +187,11 @@ public class TrapActivity extends AppCompatActivity {
                         String line = server.editTrap(trap.getId(), String.valueOf(swTraceBittes.isChecked()), String.valueOf(swAdhesivePlateReplacement.isChecked()),
                                 edNumberPests.getText().toString(), String.valueOf(swIsTrapDamage.isChecked()),
                                 String.valueOf(swIsTrapReplacement.isChecked()), String.valueOf(swIsTrapReplacementDo.isChecked()), trap.getPhoto(),
-                                edNumbers.getText().toString(), edComment.getText().toString(), edCommentPhoto.getText().toString(), edNameTrap.getText().toString());
+                                edNumbers.getText().toString(), edComment.getText().toString(),
+                                edCommentPhoto.getText().toString(), edNameTrap.getText().toString(), edKind.getText().toString());
                         if (line.equals("1")) {
                             handler.sendEmptyMessage(1);
-                        }else {
+                        } else {
                             handler.sendEmptyMessage(2);
                         }
                     }
@@ -216,6 +221,7 @@ public class TrapActivity extends AppCompatActivity {
         edNameTrap.addTextChangedListener(watcher);
         edNumbers.addTextChangedListener(watcher);
         edComment.addTextChangedListener(watcher);
+        edKind.addTextChangedListener(watcher);
         ivAddPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

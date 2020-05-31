@@ -42,6 +42,8 @@ public class Trap {
     private String commentPhoto = "";
     @SerializedName("nameTrap")
     private String nameTrap = "";
+    @SerializedName("kind")
+    private String kind = "";
     private Bitmap picture;
 
     /**
@@ -89,6 +91,14 @@ public class Trap {
     }
 
     public Trap() {
+    }
+
+    public String getKind() {
+        return kind;
+    }
+
+    public void setKind(String kind) {
+        this.kind = kind;
     }
 
     public String getCustomNumber() {

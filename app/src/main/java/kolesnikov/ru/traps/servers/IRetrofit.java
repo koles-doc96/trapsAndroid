@@ -33,6 +33,7 @@ public interface IRetrofit {
                          @Query("comment") String comment,
                          @Query("commentPhoto") String commentPhoto,
                          @Query("nameTrap") String nameTrap,
+                         @Query("kind") String kind,
                          @Body String photo
     );
 
@@ -48,6 +49,7 @@ public interface IRetrofit {
                           @Query("comment") String comment,
                           @Query("commentPhoto") String commentPhoto,
                           @Query("nameTrap") String nameTrap,
+                          @Query("kind") String kind,
                           @Body String photo
     );
 

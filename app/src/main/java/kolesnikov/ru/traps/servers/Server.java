@@ -28,6 +28,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.Query;
 
 import static com.google.firebase.crash.FirebaseCrash.log;
 
@@ -102,7 +103,7 @@ public class Server {
     public String findkKey(String key) {
         try {
             return new getKeyAsync().execute(key).get();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
@@ -110,7 +111,8 @@ public class Server {
 
     // Добавление ловушки
     public String addTrap(String barcode, String traceBittes, String adhesivePlateReplacement,
-                          String numberPests, String isTrapDamage, String isTrapReplacement, String isTrapReplacementDo, String photo, String customNumber, String comment, String commentPhoto, String nameTrap) {
+                          String numberPests, String isTrapDamage, String isTrapReplacement, String isTrapReplacementDo, String photo, String customNumber,
+                          String comment, String commentPhoto, String nameTrap, String kind) {
         line = "";
         try {
             JSONObject paramObject = new JSONObject();
@@ -121,7 +123,7 @@ public class Server {
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
             Call<String> query = retrofit.create(IRetrofit.class).addTrap(URLEncoder.encode(barcode, "UTF-8"), traceBittes, adhesivePlateReplacement, numberPests,
-                    isTrapDamage, isTrapReplacement, isTrapReplacementDo, customNumber, comment, commentPhoto, nameTrap, photo);
+                    isTrapDamage, isTrapReplacement, isTrapReplacementDo, customNumber, comment, commentPhoto, nameTrap, kind, photo);
             Response<String> execute = query.execute();
             System.out.println(execute.message());
             System.out.println(execute.body());
@@ -135,7 +137,7 @@ public class Server {
 
     public String editTrap(String id, String traceBittes, String adhesivePlateReplacement,
                            String numberPests, String isTrapDamage, String isTrapReplacement, String isTrapReplacementDo, String photo,
-                           String customNumber, String comment, String commentPhoto, String nameTrap) {
+                           String customNumber, String comment, String commentPhoto, String nameTrap, String kind) {
         line = "";
         try {
             Retrofit retrofit = new Retrofit.Builder()
@@ -144,7 +146,7 @@ public class Server {
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
             Call<String> query = retrofit.create(IRetrofit.class).editTrap(id, traceBittes, adhesivePlateReplacement, numberPests,
-                    isTrapDamage, isTrapReplacement, isTrapReplacementDo, customNumber, comment, commentPhoto, nameTrap, photo);
+                    isTrapDamage, isTrapReplacement, isTrapReplacementDo, customNumber, comment, commentPhoto, nameTrap, kind, photo);
             Response<String> execute = query.execute();
             return execute.body();
         } catch (Exception e) {
