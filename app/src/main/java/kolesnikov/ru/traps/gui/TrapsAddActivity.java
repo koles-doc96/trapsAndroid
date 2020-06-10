@@ -38,6 +38,7 @@ import java.util.Date;
 
 import kolesnikov.ru.traps.Objects.Trap;
 import kolesnikov.ru.traps.R;
+import kolesnikov.ru.traps.gui.QR.DecoderActivity;
 import kolesnikov.ru.traps.servers.Server;
 import kolesnikov.ru.traps.Utils.BitmapUtils;
 import kolesnikov.ru.traps.Utils.ToastUtils;
@@ -162,7 +163,7 @@ public class TrapsAddActivity extends AppCompatActivity {
         ivQrCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(TrapsAddActivity.this, QrCodeActivity.class);
+                Intent i = new Intent(TrapsAddActivity.this, DecoderActivity.class);
                 startActivityForResult(i, REQUEST_CODE_QR_SCAN);
             }
         });

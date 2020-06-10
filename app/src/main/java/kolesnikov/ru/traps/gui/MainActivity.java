@@ -38,6 +38,7 @@ import kolesnikov.ru.traps.Objects.Keys;
 import kolesnikov.ru.traps.Objects.Trap;
 import kolesnikov.ru.traps.R;
 import kolesnikov.ru.traps.Utils.Utils;
+import kolesnikov.ru.traps.gui.QR.DecoderActivity;
 import kolesnikov.ru.traps.servers.Server;
 import kolesnikov.ru.traps.gui.adapters.RecycleViewTrapsAdapter;
 import kolesnikov.ru.traps.gui.parsers.TrapsParser;
@@ -193,6 +194,7 @@ public class MainActivity extends AppCompatActivity {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    trap = null;
                     trap = server.findTrap(result);
                     if (trap != null) {
                         handler.sendEmptyMessage(1);
@@ -298,7 +300,7 @@ public class MainActivity extends AppCompatActivity {
         btnFindTrap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(MainActivity.this, QrCodeActivity.class);
+                Intent i = new Intent(MainActivity.this, DecoderActivity.class);
                 startActivityForResult(i, REQUEST_CODE_QR_SCAN);
                 overridePendingTransition(R.anim.move_left_activity_out, R.anim.move_rigth_activity_in);
             }
