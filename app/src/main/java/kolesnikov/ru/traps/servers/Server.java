@@ -3,6 +3,9 @@ package kolesnikov.ru.traps.servers;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -60,12 +63,15 @@ public class Server {
     public List<Trap> getTraps() {
         String line = "";
         traps = new ArrayList<>();
+        Gson gson = new GsonBuilder()
+                .setLenient()
+                .create();
         Call<List<Trap>> query = null;
         try {
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(SERVER_ADDR) // Адрес сервера
                     // говорим ретрофиту что для сериализации необходимо использовать GSON
-                    .addConverterFactory(GsonConverterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create(gson))
                     .build();
             query = retrofit.create(IRetrofit.class).getTraps();
             traps = query.execute().body();
@@ -75,6 +81,15 @@ public class Server {
             return null;
         }
     }
+
+    public String getTraps2() {
+        String line = "";
+        try {
+            line = new getTrapsAsync().execute().get();
+        } catch (Exception e) {}
+        return line;
+    }
+
 
     // Поиск ловушки по QR коду
     public Trap findTrap(String barcode) {

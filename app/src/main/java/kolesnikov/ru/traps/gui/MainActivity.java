@@ -113,13 +113,13 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         getPermissions();
+        getDataServer();
         showKeyDialog(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        getDataServer();
     }
 
     private void getPermissions() {

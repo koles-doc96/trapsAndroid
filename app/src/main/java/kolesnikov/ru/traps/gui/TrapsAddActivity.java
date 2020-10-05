@@ -266,9 +266,10 @@ public class TrapsAddActivity extends AppCompatActivity {
             trap.setBarCode(result);
             ivQrCode.setImageResource(R.drawable.ic_qr_code);
             isQRCode = true;
-            if(isPhoto){
+            if(isQRCode){
                 btnSave.setVisibility(View.VISIBLE);
             }
+
             Snackbar.make(ivPhoto, "QR код успешно считан", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
         }
@@ -295,10 +296,7 @@ public class TrapsAddActivity extends AppCompatActivity {
                 ivPhoto.setImageBitmap(bitmap);
                 trap.setPhoto(saveBitmap(bitmap));
                 Utils.photo = trap.getPhoto();
-                isPhoto = true;
-                if(isQRCode){
-                    btnSave.setVisibility(View.VISIBLE);
-                }
+
             } catch (Exception e) {
             }
 
